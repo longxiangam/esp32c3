@@ -4,6 +4,19 @@
     // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+
+        {
+            "name": "Wokwi GDB",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/riscv32imc-unknown-none-elf/debug/my_esp32c3",
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Espressif/tools/riscv32-esp-elf-gdb/11.2_20220823/riscv32-esp-elf-gdb/bin/riscv32-esp-elf-gdb-3.9.exe",
+            "miDebuggerServerAddress": "localhost:3333"
+          }
+
         
 
    
