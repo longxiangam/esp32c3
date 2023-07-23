@@ -1,9 +1,19 @@
 #![no_std]
 #![no_main]
 
+
 use esp_backtrace as _;
 use esp_println::println;
-use hal::{clock::ClockControl, peripherals::Peripherals, prelude::*, timer::TimerGroup, Rtc, IO};
+use hal::{clock::ClockControl, peripherals::Peripherals, prelude::*, timer::TimerGroup, Rtc, IO, interrupt, gpio::{Event, Gpio0, Input, PullDown}, riscv, Delay, peripherals, esp_riscv_rt, TrapFrame};
+
+use core::cell::RefCell;
+use core::fmt::{Debug, Display};
+use hal::riscv::_export::critical_section;
+use critical_section::Mutex;
+use hal::gpio::Gpio1;
+
+static BUTTON: Mutex<RefCell<Option<Gpio0<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
+static BUTTON1: Mutex<RefCell<Option<Gpio1<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
 
 
 
@@ -39,26 +49,76 @@ fn main() -> ! {
     led12.set_high().unwrap();
     led13.set_low().unwrap();
 
+    let mut led2 = io.pins.gpio2.into_push_pull_output();
+    led2.set_high().unwrap();
 
-    let a = 1;
-    let b = 1;
-    let c =  delay(a,b);
-    println!("Hello world!{}",c);
+    // Set GPIO0 as an input
+     let mut button = io.pins.gpio0.into_pull_down_input();
+     button.listen(Event::FallingEdge);
 
+     critical_section::with(|cs| BUTTON.borrow_ref_mut(cs).replace(button));
+
+     interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
+
+     let mut button1 = io.pins.gpio1.into_pull_down_input();
+     button1.listen(Event::FallingEdge);
+
+     critical_section::with(|cs| BUTTON1.borrow_ref_mut(cs).replace(button1));
+
+     interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
+
+
+
+     unsafe {
+         riscv::interrupt::enable();
+     }
+
+    let mut delay = Delay::new(&clocks);
     loop {
-
+        led2.toggle().unwrap();
+        delay.delay_ms(500u32);
     }
 }
 
-fn delay(a:i32,b:i32) -> i32{
-/*
-    asm!(
-    "mov edi, ebx",
-    "cpuid",
-    "xchg edi, ebx",
-    in("eax") info,
-    lateout("eax") a, out("edi") b, out("ecx") c, out("edx") d,
-    )*/
 
-    a + b
+#[interrupt]
+fn GPIO(context: &mut esp_riscv_rt::TrapFrame) {
+    critical_section::with(|cs| {
+        println!("GPIO interrupt");
+        println!("{:?}",context);
+
+
+
+       let  button_is_high =  BUTTON
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .is_acore_interrupt_set();
+
+        let  button1_is_high =  BUTTON1
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .is_acore_interrupt_set();
+
+        if(button_is_high){
+            println!("按钮0 按下");
+        }
+
+        if(button1_is_high){
+            println!("按钮1 按下");
+        }
+        BUTTON
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .clear_interrupt();
+
+        BUTTON1
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .clear_interrupt();
+
+    });
 }
