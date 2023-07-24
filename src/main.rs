@@ -2,6 +2,8 @@
 #![no_main]
 
 
+mod lcd;
+
 use esp_backtrace as _;
 use esp_println::println;
 use hal::{clock::ClockControl, peripherals::Peripherals, prelude::*, timer::TimerGroup, Rtc, IO, interrupt, gpio::{Event, Gpio0, Input, PullDown}, riscv, Delay, peripherals, esp_riscv_rt, TrapFrame};
@@ -10,7 +12,8 @@ use core::cell::RefCell;
 use core::fmt::{Debug, Display};
 use hal::riscv::_export::critical_section;
 use critical_section::Mutex;
-use hal::gpio::Gpio1;
+
+use hal::gpio::{Gpio1, GpioPin, Unknown};
 
 static BUTTON: Mutex<RefCell<Option<Gpio0<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
 static BUTTON1: Mutex<RefCell<Option<Gpio1<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
@@ -46,7 +49,7 @@ fn main() -> ! {
     let io = IO::new(peripherals.GPIO,peripherals.IO_MUX);
     let mut led12 = io.pins.gpio12.into_push_pull_output();
     let mut led13 = io.pins.gpio13.into_push_pull_output();
-    led12.set_high().unwrap();
+    led12.set_low().unwrap();
     led13.set_low().unwrap();
 
     let mut led2 = io.pins.gpio2.into_push_pull_output();
@@ -67,9 +70,10 @@ fn main() -> ! {
 
      interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
 
+/*
+    let aaa: GpioPin<Unknown, Bank0G, IRA, PINTYPE, SIG, GPIONUM> = io.pins.gpio12;
 
-
-     unsafe {
+*/     unsafe {
          riscv::interrupt::enable();
      }
 
