@@ -13,8 +13,10 @@
             "program": "${workspaceFolder}/target/riscv32imc-unknown-none-elf/debug/my_esp32c3",
             "cwd": "${workspaceFolder}",
             "MIMode": "gdb",
-            "miDebuggerPath": "C:/Espressif/tools/riscv32-esp-elf-gdb/11.2_20220823/riscv32-esp-elf-gdb/bin/riscv32-esp-elf-gdb-3.9.exe",
-            "miDebuggerServerAddress": "localhost:3333"
+            //"miDebuggerPath": "C:/SysGCC/risc-v/bin/riscv64-unknown-elf-gdb.exe",
+            "miDebuggerPath": "C:/Program Files/JetBrains/CLion 2023.1.1/bin/gdb/win/x64/bin/gdb.exe",
+            "miDebuggerServerAddress": "localhost:3333",
+            "serverLaunchTimeout": 70000
           }
 
         
