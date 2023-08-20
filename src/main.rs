@@ -4,13 +4,13 @@
 
 mod cn_font;
 pub(crate) mod epd_2in9wb;
+pub(crate) mod lcd_1in8;
 
 use esp_backtrace as _;
 use esp_println::println;
 use hal::{clock::ClockControl, peripherals::Peripherals, prelude::*, timer::TimerGroup, Rtc, IO, interrupt, gpio::{Event, Gpio0, Input, PullDown}, riscv, Delay, peripherals, esp_riscv_rt, TrapFrame};
 
 use core::cell::RefCell;
-/*use core::fmt::{Debug, Display};*/
 use hal::riscv::_export::critical_section;
 use critical_section::Mutex;
 use embedded_graphics::image::{Image, ImageRaw, ImageRawLE};
