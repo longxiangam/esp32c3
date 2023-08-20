@@ -1,6 +1,11 @@
 #![no_std]
 #![no_main]
 
+/*
+st7735 的最新版本 依赖的 embedded_graphics 0.8
+epd_waveshare 的最新版本 依赖的  embedded_graphics 0.7.1
+
+ */
 
 mod cn_font;
 pub(crate) mod epd_2in9wb;

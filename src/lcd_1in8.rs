@@ -10,28 +10,29 @@ use embedded_graphics::text::Text;
 use hal::ehal::blocking::delay::DelayMs;
 use hal::ehal::blocking::spi::Write;
 use hal::ehal::digital::v2::{InputPin, OutputPin};
-use st7735_lcd::Orientation;
+use st7735_lcd::{Orientation, ST7735};
 use embedded_graphics::prelude::*;
 
 
-pub struct Lcd1in8<'a,SPI, CS, DC, RST, DELAY>{
-    pub  lcd :st7735_lcd::ST7735<SPI, DC, RST>,
+pub struct Lcd1in8<'a,SPI,DC, RST, DELAY>
+    where SPI :Write<u8>,
+    DC: OutputPin,
+    RST: OutputPin,
+{
+    pub  lcd :ST7735<SPI, DC, RST>,
     delay: &'a mut DELAY,
-    spi:&'a mut SPI
 }
 
 
-impl<'a,SPI, CS,  DC, RST, DELAY> Lcd1in8<'a,SPI, CS, DC, RST, DELAY>
+impl<'a,SPI,  DC, RST, DELAY> Lcd1in8<'a,SPI,  DC, RST, DELAY>
     where
         SPI: Write<u8>,
-        CS: OutputPin,
         DC: OutputPin,
         RST: OutputPin,
         DELAY: DelayMs<u8>,
 {
     pub fn new(
-        spi: &'a mut SPI,
-        cs: CS,
+        spi: SPI,
         dc: DC,
         rgb: bool,
         inverted: bool,
@@ -39,22 +40,17 @@ impl<'a,SPI, CS,  DC, RST, DELAY> Lcd1in8<'a,SPI, CS, DC, RST, DELAY>
         height: u32,
         rst: RST,
         delay: &'a mut DELAY,
-    ) -> Result<Self, SPI::Error> {
+    ) -> Self {
         let mut lcd = st7735_lcd::ST7735::new(spi, dc, rst, rgb, inverted, width, height);
         lcd.init(delay).unwrap();
-        match lcd {
-            Ok(v) => {
-                let temp = Self { lcd: v, delay, spi };
-                Ok(temp)
-            },
-            Err(e) => {
-                Err(e)
-            }
-        }
+       Self { lcd, delay}
+
     }
+
+
     pub  fn work(&mut self){
 
-        self.lcd.clear(Default::default()).unwrap();
+      //  self.lcd.clear().unwrap();
       /*  display
             .set_orientation(&Orientation::Landscape)
             .unwrap();
