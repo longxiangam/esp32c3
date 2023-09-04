@@ -58,7 +58,7 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd2in9wb<'a,SPI, CS, BUSY, DC, RST, DELA
 
         let mut display = Display2in9::default();
         println!("Drawing rotated text...");
-        display.set_rotation(DisplayRotation::Rotate90);
+        display.set_rotation(DisplayRotation::Rotate270);
         Self::draw_text(&mut display, "Rotate 0!1112222你好", 50, 50);
         let _ = Line::new(Point::new(10, 20), Point::new(100, 20))
             .into_styled(PrimitiveStyle::with_stroke(Black, 10))
