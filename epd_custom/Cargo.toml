@@ -1,0 +1,18 @@
+[package]
+name = "epd_custom"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+esp32c3 = "0.14.0"
+hal = { package = "esp32c3-hal", version = "0.9.0" }
+esp-backtrace = { version = "0.7.0", features = ["esp32c3", "panic-handler", "exception-handler", "print-uart"] }
+esp-println       = { version = "0.5.0", features = ["esp32c3"] }
+embedded-graphics = {version="0.7.1",features = ["fixed"]}
+
+epd-waveshare = "0.5.0"
+embedded-hal = "0.2.7"
+
+
