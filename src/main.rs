@@ -10,6 +10,7 @@ epd_waveshare 的最新版本 依赖的  embedded_graphics 0.7.1
 mod cn_font;
 pub(crate) mod epd_2in9wb;
 pub(crate) mod lcd_1in8;
+mod epd_3in27wb;
 
 use esp_backtrace as _;
 use esp_println::println;
@@ -37,6 +38,9 @@ use embedded_graphics::{
 
 };
 use epd_waveshare::prelude::Display;
+
+use epd_custom::epd3in27::{*};
+use crate::epd_3in27wb::Epd3in27wb;
 
 static BUTTON: Mutex<RefCell<Option<Gpio0<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
 static BUTTON1: Mutex<RefCell<Option<Gpio1<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
@@ -69,35 +73,35 @@ fn main() -> ! {
     println!("Hello world!");
     let mut delay = Delay::new(&clocks);
     let io = IO::new(peripherals.GPIO,peripherals.IO_MUX);
-  /*  let mut led12 = io.pins.gpio12.into_push_pull_output();
-    let mut led13 = io.pins.gpio13.into_push_pull_output();
-    led12.set_low().unwrap();
-    led13.set_low().unwrap();
+    /*  let mut led12 = io.pins.gpio12.into_push_pull_output();
+      let mut led13 = io.pins.gpio13.into_push_pull_output();
+      led12.set_low().unwrap();
+      led13.set_low().unwrap();
 
-    let mut led2 = io.pins.gpio2.into_push_pull_output();
-    led2.set_high().unwrap();
+      let mut led2 = io.pins.gpio2.into_push_pull_output();
+      led2.set_high().unwrap();
 
-    // Set GPIO0 as an input
-     let mut button = io.pins.gpio0.into_pull_down_input();
-     button.listen(Event::FallingEdge);
+      // Set GPIO0 as an input
+       let mut button = io.pins.gpio0.into_pull_down_input();
+       button.listen(Event::FallingEdge);
 
-     critical_section::with(|cs| BUTTON.borrow_ref_mut(cs).replace(button));
+       critical_section::with(|cs| BUTTON.borrow_ref_mut(cs).replace(button));
 
-     interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
+       interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
 
-     let mut button1 = io.pins.gpio1.into_pull_down_input();
-     button1.listen(Event::FallingEdge);
+       let mut button1 = io.pins.gpio1.into_pull_down_input();
+       button1.listen(Event::FallingEdge);
 
-     critical_section::with(|cs| BUTTON1.borrow_ref_mut(cs).replace(button1));
+       critical_section::with(|cs| BUTTON1.borrow_ref_mut(cs).replace(button1));
 
-     interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();*/
+       interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();*/
 
-/*
-    let aaa: GpioPin<Unknown, Bank0G, IRA, PINTYPE, SIG, GPIONUM> = io.pins.gpio12;
+    /*
+        let aaa: GpioPin<Unknown, Bank0G, IRA, PINTYPE, SIG, GPIONUM> = io.pins.gpio12;
 
-*/     unsafe {
-         riscv::interrupt::enable();
-     }
+    */     unsafe {
+        riscv::interrupt::enable();
+    }
     /*
 
 
@@ -152,76 +156,80 @@ fn main() -> ! {
         let text = Text::new("Hello e-g", Point::new(10, 11), character_style);
         text.draw(&mut display).expect("");*/
 
-        //墨水屏
-        let epd_sclk = io.pins.gpio2;
-        let epd_miso = io.pins.gpio0;
-        let epd_mosi = io.pins.gpio3;
-        let epd_cs = io.pins.gpio7.into_push_pull_output();
-        let epd_rst =io.pins.gpio10.into_push_pull_output();
-        let epd_dc = io.pins.gpio6.into_push_pull_output();
-        let mut spi = hal::Spi::new_no_cs(
-            peripherals.SPI2,
-            epd_sclk,
-            epd_mosi,
-            epd_miso,
-            32u32.MHz(),
-            hal::spi::SpiMode::Mode0,
-            &mut system.peripheral_clock_control,
-            &clocks,
-        );
-        let busy_in = io.pins.gpio11.into_pull_up_input();
-       /* let mut epd = Epd2in9::new(&mut spi, cs, busy_in, dc, rst, &mut delay).expect("");*/
-        let mut epd_device =epd_2in9wb::Epd2in9wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
+    //墨水屏
+    let epd_sclk = io.pins.gpio2;
+    let epd_miso = io.pins.gpio0;
+    let epd_mosi = io.pins.gpio3;
+    let epd_cs = io.pins.gpio7.into_push_pull_output();
+    let epd_rst =io.pins.gpio10.into_push_pull_output();
+    let epd_dc = io.pins.gpio6.into_push_pull_output();
+    let mut spi = hal::Spi::new_no_cs(
+        peripherals.SPI2,
+        epd_sclk,
+        epd_mosi,
+        epd_miso,
+        32u32.MHz(),
+        hal::spi::SpiMode::Mode0,
+        &mut system.peripheral_clock_control,
+        &clocks,
+    );
+    let busy_in = io.pins.gpio11.into_pull_up_input();
 
-        epd_device.unwrap().work();
+    /* let mut epd_device =epd_2in9wb::Epd2in9wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
+
+     epd_device.unwrap().work();*/
+    let mut epd_device =Epd3in27wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
+
+    epd_device.unwrap().work();
 
 
-        loop {
-          /*  led2.toggle().unwrap();*/
-            delay.delay_ms(500u32);
+
+    loop {
+        /*  led2.toggle().unwrap();*/
+        delay.delay_ms(500u32);
+    }
+}
+
+
+
+#[interrupt]
+fn GPIO(context: &mut esp_riscv_rt::TrapFrame) {
+    critical_section::with(|cs| {
+        println!("GPIO interrupt");
+        println!("{:?}",context);
+
+
+
+        let  button_is_high =  BUTTON
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .is_acore_interrupt_set();
+
+        let  button1_is_high =  BUTTON1
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .is_acore_interrupt_set();
+
+        if(button_is_high){
+            println!("按钮0 按下");
         }
-    }
 
+        if(button1_is_high){
+            println!("按钮1 按下");
+        }
+        BUTTON
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .clear_interrupt();
 
+        BUTTON1
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .clear_interrupt();
 
-    #[interrupt]
-    fn GPIO(context: &mut esp_riscv_rt::TrapFrame) {
-        critical_section::with(|cs| {
-            println!("GPIO interrupt");
-            println!("{:?}",context);
-
-
-
-           let  button_is_high =  BUTTON
-                .borrow_ref_mut(cs)
-                .as_mut()
-                .unwrap()
-                .is_acore_interrupt_set();
-
-            let  button1_is_high =  BUTTON1
-                .borrow_ref_mut(cs)
-                .as_mut()
-                .unwrap()
-                .is_acore_interrupt_set();
-
-            if(button_is_high){
-                println!("按钮0 按下");
-            }
-
-            if(button1_is_high){
-                println!("按钮1 按下");
-            }
-            BUTTON
-                .borrow_ref_mut(cs)
-                .as_mut()
-                .unwrap()
-                .clear_interrupt();
-
-            BUTTON1
-                .borrow_ref_mut(cs)
-                .as_mut()
-                .unwrap()
-                .clear_interrupt();
-
-        });
-    }
+    });
+}

@@ -179,6 +179,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "epd_custom"
+version = "0.1.0"
+dependencies = [
+ "embedded-graphics 0.7.1",
+ "embedded-hal",
+ "epd-waveshare",
+ "esp-backtrace",
+ "esp-println",
+ "esp32c3",
+ "esp32c3-hal",
+]
+
+[[package]]
 name = "esp-backtrace"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -368,7 +381,6 @@ name = "lcd1in8"
 version = "0.1.0"
 dependencies = [
  "embedded-graphics 0.8.0",
- "epd-waveshare",
  "esp-backtrace",
  "esp-println",
  "esp32c3",
@@ -400,6 +412,7 @@ version = "0.1.0"
 dependencies = [
  "embedded-graphics 0.7.1",
  "epd-waveshare",
+ "epd_custom",
  "esp-backtrace",
  "esp-println",
  "esp32c3",
