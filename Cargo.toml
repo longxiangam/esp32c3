@@ -20,5 +20,7 @@ epd_custom={path="epd_custom"}
 [workspace]
 members = [
     "lcd1in8",
-    "epd_custom"
+    "epd_custom",
+    "eg-bdf",
+    "eg-bdf-macros"
 ]
