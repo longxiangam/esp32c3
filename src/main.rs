@@ -175,12 +175,12 @@ fn main() -> ! {
     );
     let busy_in = io.pins.gpio11.into_pull_up_input();
 
-    /* let mut epd_device =epd_2in9wb::Epd2in9wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
+     let mut epd_device =epd_2in9wb::Epd2in9wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
 
-     epd_device.unwrap().work();*/
-    let mut epd_device =Epd3in27wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
+     epd_device.unwrap().work();
+   /* let mut epd_device =Epd3in27wb::new(&mut spi, epd_cs, busy_in, epd_dc, epd_rst,  &mut delay);
 
-    epd_device.unwrap().work();
+    epd_device.unwrap().work();*/
 
 
 
