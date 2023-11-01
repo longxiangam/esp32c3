@@ -14,7 +14,9 @@ use embedded_graphics::text::{Baseline, Text, TextStyleBuilder};
 use epd_custom::epd3in27::{Display3in27, Epd3in27, TwoBitColorDisplay, TwoBitColor::White as White, TwoBitColor::Black as Black};
 use epd_custom::epd3in27::TwoBitColor::{Gray1, Gray2};
 use crate::epd_3in27wb;
+use eg_bdf::{include_bdf, text::BdfTextStyle, BdfFont};
 
+const FONT_10X20: BdfFont = include_bdf!("assets/gb2312.BDF");
 pub struct Epd3in27wb<'a,SPI, CS, BUSY, DC, RST, DELAY>{
     pub  epd :Epd3in27<SPI, CS, BUSY, DC, RST, DELAY>,
     delay: &'a mut DELAY,
@@ -58,8 +60,19 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd3in27wb<'a,SPI, CS, BUSY, DC, RST, DEL
         let mut display = Display3in27::default();
         println!("Drawing rotated text...");
         display.set_rotation(DisplayRotation::Rotate0);
-        Self::draw_text(&mut display, "Rotate 0!1112222你好", 10, 10);
-        let _ = Line::new(Point::new(10, 90), Point::new(90, 90))
+        Self::draw_text(&mut display, "Rotate 0!1112222", 10, 0);
+/*        Self::draw_cn_text(&mut display,"长歌行
+汉乐府〔两汉〕
+青青园中葵，朝露待日晞。
+阳春布德泽，万物生光辉。
+常恐秋节至，焜黄华叶衰。
+百川东到海，何时复西归？
+少壮不努力，老大徒伤悲！",20,20);*/
+/*        Self::draw_cn_text(&mut display, "天气：", 20, 20);
+        Self::draw_cn_text(&mut display, "风力：", 20, 40);
+        Self::draw_cn_text(&mut display, "温度：", 20,60);
+        Self::draw_cn_text(&mut display, "湿度：", 20,80);*/
+     /*   let _ = Line::new(Point::new(10, 90), Point::new(90, 90))
             .into_styled(PrimitiveStyle::with_stroke(Black, 10))
             .draw(&mut display);
 
@@ -70,7 +83,7 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd3in27wb<'a,SPI, CS, BUSY, DC, RST, DEL
 
         let _ = Line::new(Point::new(10, 130), Point::new(90, 130))
             .into_styled(PrimitiveStyle::with_stroke(Gray1, 10))
-            .draw(&mut display);
+            .draw(&mut display);*/
         let _= self.epd.clear_frame(self.spi, self.delay);
 
         let _= self.epd.update_frame(self.spi, &display.buffer(), self.delay);
@@ -81,7 +94,15 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd3in27wb<'a,SPI, CS, BUSY, DC, RST, DEL
 
         let _= self.epd.sleep(self.spi, self.delay);
     }
+    fn draw_cn_text(display: &mut Display3in27, text: &str, x: i32, y: i32) {
 
+        let mut style = BdfTextStyle::new(&FONT_10X20, Black);
+
+        let text_style = TextStyleBuilder::new().baseline(Baseline::Top).build();
+        let _ = Text::with_text_style(text, Point::new(x+15, y+15), style, text_style).draw(display);
+        /*  Text::new(text, Point::new(x, y), style)
+              .draw(display);*/
+    }
     fn draw_text(display: &mut Display3in27, text: &str, x: i32, y: i32) {
 
         let style = MonoTextStyleBuilder::new()

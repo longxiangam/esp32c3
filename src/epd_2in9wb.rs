@@ -62,26 +62,22 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd2in9wb<'a,SPI, CS, BUSY, DC, RST, DELA
         println!("Drawing rotated text...");
         display.set_rotation(DisplayRotation::Rotate270);
 
-        Self::draw_text(&mut display, "ABCD", 20, 0);
-        Self::draw_cn_text(&mut display, "天气：", 20, 20);
-        Self::draw_cn_text(&mut display, "风力：", 20, 40);
-        Self::draw_cn_text(&mut display, "温度：", 20,60);
-        Self::draw_cn_text(&mut display, "湿度：", 20,80);
-        let _ = Line::new(Point::new(10, 100), Point::new(100, 100))
-            .into_styled(PrimitiveStyle::with_stroke(Black, 1))
-
-            .draw(&mut display);
+        Self::draw_cn_text(&mut display,"长歌行
+汉乐府〔两汉〕
+青青园中葵，朝露待日晞。
+阳春布德泽，万物生光辉。
+常恐秋节至，焜黄华叶衰。
+百川东到海，何时复西归？
+少壮不努力，老大徒伤悲！",20,0);
 
         let _= self.epd.clear_frame(self.spi, self.delay);
 
         let _= self.epd.update_frame(self.spi, &display.buffer(), self.delay);
         let _= self.epd.display_frame(self.spi, self.delay);
-
-
         let _= self.epd.sleep(self.spi, self.delay);
 
 
-        loop {
+        /*loop {
             for i in 0..10 {
                 self.delay.delay_ms(200u8);
             }
@@ -95,11 +91,11 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd2in9wb<'a,SPI, CS, BUSY, DC, RST, DELA
             let _= self.epd.display_frame(self.spi, self.delay);
 
             let _= self.epd.sleep(self.spi, self.delay);
-        }
+        }*/
 
     }
 
-    fn draw_cn_text(display: &mut Display2in9, text: &str, x: i32, y: i32) {
+    pub fn draw_cn_text(display: &mut Display2in9, text: &str, x: i32, y: i32) {
 
         let mut style = BdfTextStyle::new(&FONT_10X20, Black);
 
@@ -108,7 +104,7 @@ impl<'a,SPI, CS, BUSY, DC, RST, DELAY> Epd2in9wb<'a,SPI, CS, BUSY, DC, RST, DELA
       /*  Text::new(text, Point::new(x, y), style)
             .draw(display);*/
     }
-    fn draw_text(display: &mut Display2in9, text: &str, x: i32, y: i32) {
+    pub fn draw_text(display: &mut Display2in9, text: &str, x: i32, y: i32) {
 
           let style = MonoTextStyleBuilder::new()
               .font(&embedded_graphics::mono_font::iso_8859_16::FONT_10X20)
